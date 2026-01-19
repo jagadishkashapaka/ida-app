@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/session.dart';
 import '../services/firestore_service.dart';
@@ -12,6 +13,8 @@ class ScheduleNotifier extends Notifier<Map<String, List<Session>>> {
     // Listen to real-time updates
     _firestoreService.getScheduleStream().listen((newSchedule) {
       state = newSchedule;
+    }, onError: (e) {
+      debugPrint('Schedule Sync Error: $e');
     });
     
     // Return initial empty state (or loading state structure)

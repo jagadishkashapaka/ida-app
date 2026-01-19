@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/update.dart';
 import '../services/firestore_service.dart';
@@ -12,6 +13,8 @@ class AnnouncementsNotifier extends Notifier<List<Update>> {
     // Listen to real-time updates
     _firestoreService.getAnnouncementsStream().listen((updates) {
       state = updates;
+    }, onError: (e) {
+      debugPrint('Announcements Sync Error: $e');
     });
     return [];
   }

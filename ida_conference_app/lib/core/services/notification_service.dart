@@ -103,6 +103,7 @@ class NotificationService {
           channelDescription: 'Notifications for upcoming conference sessions',
           importance: Importance.max,
           priority: Priority.high,
+          icon: 'ic_notification', // Add notification icon
         ),
         iOS: DarwinNotificationDetails(),
       ),
@@ -119,8 +120,10 @@ class NotificationService {
     const androidDetails = AndroidNotificationDetails(
       'announcement_channel',
       'Announcements',
+      channelDescription: 'Important announcements from admin',
       importance: Importance.max,
       priority: Priority.high,
+      icon: 'ic_notification', // Add notification icon
     );
     const notificationDetails = NotificationDetails(
       android: androidDetails,

@@ -54,15 +54,23 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
             child: const Text('Cancel'),
           ),
           ElevatedButton(
-            onPressed: () {
-              final updatedSession = session.copyWith(
-                title: titleController.text,
-                speakerName: speakerController.text,
-                time: timeController.text,
-                hall: hallController.text,
-              );
-              ref.read(scheduleProvider.notifier).updateSession(updatedSession);
-              Navigator.pop(context);
+            onPressed: () async {
+              try {
+                final updatedSession = session.copyWith(
+                  title: titleController.text,
+                  speakerName: speakerController.text,
+                  time: timeController.text,
+                  hall: hallController.text,
+                );
+                await ref.read(scheduleProvider.notifier).updateSession(updatedSession);
+                if (context.mounted) Navigator.pop(context);
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(backgroundColor: Colors.red, content: Text('Save failed: $e')),
+                  );
+                }
+              }
             },
             child: const Text('Save'),
           ),
@@ -197,17 +205,25 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
             child: const Text('Cancel'),
           ),
           ElevatedButton(
-            onPressed: () {
-              final newSession = Session(
-                id: DateTime.now().millisecondsSinceEpoch.toString(),
-                title: titleController.text,
-                speakerName: speakerController.text,
-                time: timeController.text,
-                hall: hallController.text,
-                description: descriptionController.text,
-              );
-              ref.read(scheduleProvider.notifier).addSession(_selectedDay, newSession);
-              Navigator.pop(context);
+            onPressed: () async {
+              try {
+                final newSession = Session(
+                  id: DateTime.now().millisecondsSinceEpoch.toString(),
+                  title: titleController.text,
+                  speakerName: speakerController.text,
+                  time: timeController.text,
+                  hall: hallController.text,
+                  description: descriptionController.text,
+                );
+                await ref.read(scheduleProvider.notifier).addSession(_selectedDay, newSession);
+                if (context.mounted) Navigator.pop(context);
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(backgroundColor: Colors.red, content: Text('Add failed: $e')),
+                  );
+                }
+              }
             },
             child: const Text('Add'),
           ),
@@ -228,9 +244,17 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
             child: const Text('Cancel'),
           ),
           TextButton(
-            onPressed: () {
-              ref.read(scheduleProvider.notifier).removeSession(session.id);
-              Navigator.pop(context);
+            onPressed: () async {
+              try {
+                await ref.read(scheduleProvider.notifier).removeSession(session.id);
+                if (context.mounted) Navigator.pop(context);
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(backgroundColor: Colors.red, content: Text('Delete failed: $e')),
+                  );
+                }
+              }
             },
             child: const Text('Delete', style: TextStyle(color: Colors.red)),
           ),
@@ -278,21 +302,31 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
             child: const Text('Cancel'),
           ),
           ElevatedButton(
-            onPressed: () {
-              final title = titleController.text;
-              final body = bodyController.text;
-              
-              ref.read(notificationServiceProvider).showImmediateNotification(
-                title: title,
-                body: body,
-              );
-              
-              ref.read(announcementsProvider.notifier).addAnnouncement(title, body);
-              
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Announcement sent!')),
-              );
+            onPressed: () async {
+              try {
+                final title = titleController.text;
+                final body = bodyController.text;
+                
+                await ref.read(notificationServiceProvider).showImmediateNotification(
+                  title: title,
+                  body: body,
+                );
+                
+                await ref.read(announcementsProvider.notifier).addAnnouncement(title, body);
+                
+                if (context.mounted) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Announcement sent!')),
+                  );
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(backgroundColor: Colors.red, content: Text('Send failed: $e')),
+                  );
+                }
+              }
             },
             child: const Text('Send'),
           ),
@@ -357,12 +391,22 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
             child: const Text('Cancel'),
           ),
           TextButton(
-            onPressed: () {
-              ref.read(scheduleProvider.notifier).initializeDefaultSchedule();
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Schedule reset to default!')),
-              );
+            onPressed: () async {
+              try {
+                await ref.read(scheduleProvider.notifier).initializeDefaultSchedule();
+                if (context.mounted) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Schedule reset to default!')),
+                  );
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(backgroundColor: Colors.red, content: Text('Reset failed: $e')),
+                  );
+                }
+              }
             },
             child: const Text('Reset', style: TextStyle(color: Colors.red)),
           ),
