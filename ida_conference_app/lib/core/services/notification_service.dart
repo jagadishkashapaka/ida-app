@@ -103,7 +103,7 @@ class NotificationService {
           channelDescription: 'Notifications for upcoming conference sessions',
           importance: Importance.max,
           priority: Priority.high,
-          icon: 'ic_notification', // Add notification icon
+          icon: '@mipmap/launcher_icon', // Use app launcher icon
         ),
         iOS: DarwinNotificationDetails(),
       ),
@@ -123,7 +123,7 @@ class NotificationService {
       channelDescription: 'Important announcements from admin',
       importance: Importance.max,
       priority: Priority.high,
-      icon: 'ic_notification', // Add notification icon
+      icon: '@mipmap/launcher_icon', // Use app launcher icon
     );
     const notificationDetails = NotificationDetails(
       android: androidDetails,
