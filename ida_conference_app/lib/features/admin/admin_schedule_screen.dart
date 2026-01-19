@@ -90,6 +90,11 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
             tooltip: 'Send Announcement',
             onPressed: () => _showAnnouncementDialog(),
           ),
+          IconButton(
+            icon: const Icon(Icons.restore),
+            tooltip: 'Reset Schedule to Default',
+            onPressed: () => _showResetConfirmation(),
+          ),
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(48),
@@ -323,6 +328,34 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
             ],
           );
         },
+      ),
+    );
+  }
+
+  void _showResetConfirmation() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Reset Schedule'),
+        content: const Text(
+          'This will overwrite the current schedule with the default data. Are you sure?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              ref.read(scheduleProvider.notifier).initializeDefaultSchedule();
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Schedule reset to default!')),
+              );
+            },
+            child: const Text('Reset', style: TextStyle(color: Colors.red)),
+          ),
+        ],
       ),
     );
   }

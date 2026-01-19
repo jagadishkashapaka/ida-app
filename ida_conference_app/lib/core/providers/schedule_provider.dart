@@ -1,12 +1,28 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/session.dart';
+import '../services/firestore_service.dart';
 
 // Schedule data provider
 // Schedule data notifier
 class ScheduleNotifier extends Notifier<Map<String, List<Session>>> {
+  final _firestoreService = FirestoreService();
+
   @override
   Map<String, List<Session>> build() {
+    // Listen to real-time updates
+    _firestoreService.getScheduleStream().listen((newSchedule) {
+      state = newSchedule;
+    });
+    
+    // Return initial empty state (or loading state structure)
     return {
+      'day1': [],
+      'day2': [],
+    };
+  }
+
+  Future<void> initializeDefaultSchedule() async {
+    final defaultSchedule = {
       'day1': [
         const Session(
           id: '1',
@@ -26,8 +42,7 @@ class ScheduleNotifier extends Notifier<Map<String, List<Session>>> {
         ),
         const Session(
           id: '3',
-          title:
-              'Smart Decisions in Everyday Dentistry: Prevention to Restoration',
+          title: 'Smart Decisions in Everyday Dentistry: Prevention to Restoration',
           speakerName: 'Dr. Sorna Nagarajan',
           time: '11:00 AM - 12:00 PM',
           hall: 'Main Hall',
@@ -85,8 +100,7 @@ class ScheduleNotifier extends Notifier<Map<String, List<Session>>> {
         ),
         const Session(
           id: '10',
-          title:
-              'What Every Dentist Must See in 2026: Oral Blue C Paradigm Shift in Laser Care',
+          title: 'What Every Dentist Must See in 2026: Oral Blue C Paradigm Shift in Laser Care',
           speakerName: 'Dr. Chandra Shekar Yavagal',
           time: '10:00 AM - 11:00 AM',
           hall: 'Main Hall',
@@ -102,8 +116,7 @@ class ScheduleNotifier extends Notifier<Map<String, List<Session>>> {
         ),
         const Session(
           id: '12',
-          title:
-              'AIDS !! 3.0 Artificial Intelligence In Dental Care Sciences. 3.0',
+          title: 'AIDS !! 3.0 Artificial Intelligence In Dental Care Sciences. 3.0',
           speakerName: 'Dr. Sarjeev Singh Yadav',
           time: '12:00 PM - 12:30 PM',
           hall: 'Main Hall',
@@ -135,21 +148,28 @@ class ScheduleNotifier extends Notifier<Map<String, List<Session>>> {
         ),
       ],
     };
+
+    state = defaultSchedule;
+    await _firestoreService.updateSchedule('day1', defaultSchedule['day1']!);
+    await _firestoreService.updateSchedule('day2', defaultSchedule['day2']!);
   }
 
-  void updateSession(Session updatedSession) {
+  Future<void> updateSession(Session updatedSession) async {
     final newState = {...state};
     for (final day in newState.keys) {
       final index = newState[day]!.indexWhere((s) => s.id == updatedSession.id);
       if (index != -1) {
         newState[day]![index] = updatedSession;
+        // detailed Optimistic update
         state = newState;
+        // Sync to cloud
+        await _firestoreService.updateSchedule(day, newState[day]!);
         return;
       }
     }
   }
 
-  void reorderSessions(String day, int oldIndex, int newIndex) {
+  Future<void> reorderSessions(String day, int oldIndex, int newIndex) async {
     final newState = {...state};
     final items = [...newState[day]!];
     if (newIndex > oldIndex) {
@@ -157,17 +177,23 @@ class ScheduleNotifier extends Notifier<Map<String, List<Session>>> {
     }
     final item = items.removeAt(oldIndex);
     items.insert(newIndex, item);
+    
     newState[day] = items;
     state = newState;
+    
+    await _firestoreService.updateSchedule(day, items);
   }
 
-  void addSession(String day, Session session) {
+  Future<void> addSession(String day, Session session) async {
     final newState = {...state};
-    newState[day] = [...newState[day]!, session];
+    final currentList = newState[day] ?? [];
+    newState[day] = [...currentList, session];
+    
     state = newState;
+    await _firestoreService.updateSchedule(day, newState[day]!);
   }
 
-  void removeSession(String id) {
+  Future<void> removeSession(String id) async {
     final newState = {...state};
     for (final day in newState.keys) {
       final list = [...newState[day]!];
@@ -176,6 +202,8 @@ class ScheduleNotifier extends Notifier<Map<String, List<Session>>> {
         list.removeAt(index);
         newState[day] = list;
         state = newState;
+        
+        await _firestoreService.updateSchedule(day, list);
         return;
       }
     }
@@ -192,7 +220,7 @@ final currentSessionProvider = Provider<Session?>((ref) {
   final now = DateTime.now();
 
   // Check day1 sessions (January 24, 2026)
-  for (final session in schedule['day1']!) {
+  for (final session in schedule['day1'] ?? []) {
     final times = parseTimeRange(session.time, 1);
     if (times != null) {
       final start = times['start']!;
@@ -205,7 +233,7 @@ final currentSessionProvider = Provider<Session?>((ref) {
   }
 
   // Check day2 sessions (January 25, 2026)
-  for (final session in schedule['day2']!) {
+  for (final session in schedule['day2'] ?? []) {
     final times = parseTimeRange(session.time, 2);
     if (times != null) {
       final start = times['start']!;
@@ -228,7 +256,7 @@ final upNextSessionsProvider = Provider<List<Session>>((ref) {
   final upcomingSessions = <Map<String, dynamic>>[];
 
   // Check day1 sessions (January 24, 2026)
-  for (final session in schedule['day1']!) {
+  for (final session in schedule['day1'] ?? []) {
     final times = parseTimeRange(session.time, 1);
     if (times != null) {
       final start = times['start']!;
@@ -240,7 +268,7 @@ final upNextSessionsProvider = Provider<List<Session>>((ref) {
   }
 
   // Check day2 sessions (January 25, 2026)
-  for (final session in schedule['day2']!) {
+  for (final session in schedule['day2'] ?? []) {
     final times = parseTimeRange(session.time, 2);
     if (times != null) {
       final start = times['start']!;

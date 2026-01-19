@@ -1,26 +1,38 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/update.dart';
+import '../services/firestore_service.dart';
 import 'schedule_provider.dart';
 
 // Manual announcements provider
 class AnnouncementsNotifier extends Notifier<List<Update>> {
-  @override
-  List<Update> build() => [];
+  final _firestoreService = FirestoreService();
 
-  void addAnnouncement(String title, String body) {
-    state = [
-      ...state,
-      Update(
-        id: 'ann_${DateTime.now().millisecondsSinceEpoch}',
-        title: title,
-        body: body,
-        timestamp: DateTime.now(),
-      ),
-    ];
+  @override
+  List<Update> build() {
+    // Listen to real-time updates
+    _firestoreService.getAnnouncementsStream().listen((updates) {
+      state = updates;
+    });
+    return [];
   }
 
-  void removeAnnouncement(String id) {
+  Future<void> addAnnouncement(String title, String body) async {
+    final update = Update(
+      id: 'ann_${DateTime.now().millisecondsSinceEpoch}',
+      title: title,
+      body: body,
+      timestamp: DateTime.now(),
+    );
+    
+    // Optimistic update
+    state = [...state, update];
+    
+    await _firestoreService.addAnnouncement(update);
+  }
+
+  Future<void> removeAnnouncement(String id) async {
     state = state.where((ann) => ann.id != id).toList();
+    await _firestoreService.removeAnnouncement(id);
   }
 }
 

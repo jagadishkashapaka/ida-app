@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "337353990532",
+    "project_id": "ida-conference-app",
+    "storage_bucket": "ida-conference-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:337353990532:android:ba4bc0bdb264288e89bdd1",
+        "android_client_info": {
+          "package_name": "com.example.ida_conference_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCqoWdicvJCdmuIsml7u6L91R8aqqfpKAM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
