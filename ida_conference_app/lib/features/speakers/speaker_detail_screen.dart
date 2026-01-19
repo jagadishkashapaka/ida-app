@@ -16,8 +16,15 @@ class SpeakerDetailScreen extends StatelessWidget {
             AspectRatio(
               aspectRatio: 16 / 9,
               child: Container(
-                color: Colors.grey.shade300,
-                child: const Icon(Icons.person, size: 100, color: Colors.grey),
+                child: speaker.imageUrl.isNotEmpty
+                    ? Image.asset(
+                        speaker.imageUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return const Icon(Icons.person, size: 100, color: Colors.grey);
+                        },
+                      )
+                    : const Icon(Icons.person, size: 100, color: Colors.grey),
               ),
             ),
             Padding(

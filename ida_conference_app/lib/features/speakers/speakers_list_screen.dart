@@ -11,31 +11,38 @@ class SpeakersListScreen extends StatelessWidget {
     final speakers = [
       const Speaker(
         id: '1',
-        name: 'Dr. John Doe',
-        bio: 'Dr. John Doe is a pioneer in modern dentistry...',
-        imageUrl: '',
-        topic: 'Future of Dentistry',
+        name: 'Dr. Vijetha B',
+        bio: 'Topic: Bend Without Breaking: Expert Strategies for Curved Canals.',
+        imageUrl: 'assets/images/speakers/dr_vijetha.png',
+        topic: 'Bend Without Breaking',
       ),
       const Speaker(
         id: '2',
-        name: 'Dr. Jane Smith',
-        bio: 'Specialist in Implantology with 20 years of experience.',
-        imageUrl: '',
-        topic: 'Implants Workshop',
+        name: 'Dr. Rangarajan V',
+        bio: 'Topic: Bruxism - Current Status and Restorative Implications.',
+        imageUrl: 'assets/images/speakers/dr_rangarajan.png',
+        topic: 'Bruxism',
       ),
       const Speaker(
         id: '3',
-        name: 'Dr. Emily Brown',
-        bio: 'Renowned cosmetic dentist.',
-        imageUrl: '',
-        topic: 'Digital Smile Design',
+        name: 'Dr. Sorna Nagarajan',
+        bio: 'Topic: Smart Decisions in Everyday Dentistry: Prevention to Restoration.',
+        imageUrl: 'assets/images/speakers/dr_sorna.png',
+        topic: 'Smart Decisions in Everyday Dentistry',
       ),
       const Speaker(
         id: '4',
-        name: 'Dr. Michael Green',
-        bio: 'Expert in Endodontics.',
-        imageUrl: '',
-        topic: 'Root Canal Treatments',
+        name: 'Dr. Nemaly Chaithanyaa',
+        bio: 'Topic: Corticobasal Implants Myth or Reality.',
+        imageUrl: 'assets/images/speakers/dr_nemaly.png',
+        topic: 'Corticobasal Implants',
+      ),
+      const Speaker(
+        id: '5',
+        name: 'Dr. Mamatha Kaushik',
+        bio: 'Topic: Illegally Legal.',
+        imageUrl: 'assets/images/speakers/dr_mamatha.png',
+        topic: 'Illegally Legal',
       ),
     ];
 
@@ -64,11 +71,23 @@ class SpeakersListScreen extends StatelessWidget {
                   Expanded(
                     child: Container(
                       color: Colors.grey.shade200,
-                      child: const Icon(
-                        Icons.person,
-                        size: 64,
-                        color: Colors.grey,
-                      ),
+                      child: speaker.imageUrl.isNotEmpty
+                          ? Image.asset(
+                              speaker.imageUrl,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return const Icon(
+                                  Icons.person,
+                                  size: 64,
+                                  color: Colors.grey,
+                                );
+                              },
+                            )
+                          : const Icon(
+                              Icons.person,
+                              size: 64,
+                              color: Colors.grey,
+                            ),
                     ),
                   ),
                   Padding(
