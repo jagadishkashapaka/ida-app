@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/models/session.dart';
 import '../../core/providers/schedule_provider.dart';
+import '../../core/services/notification_service.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -74,6 +75,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         title: const Text('IDA Conference'),
         centerTitle: false,
         actions: [
+          IconButton(
+            onPressed: () {
+              ref.read(notificationServiceProvider).scheduleNotification(
+                id: 999,
+                title: 'Test Notification',
+                body: 'This is a test notification from IDA App!',
+                scheduledDate: DateTime.now().add(const Duration(seconds: 5)),
+              );
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Test notification scheduled in 5 seconds')),
+              );
+            },
+            icon: const Icon(Icons.notifications_active_outlined),
+          ),
           IconButton(
             onPressed: () {},
             icon: const Icon(Icons.notifications_outlined),
