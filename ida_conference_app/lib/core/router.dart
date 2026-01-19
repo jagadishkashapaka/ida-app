@@ -10,6 +10,7 @@ import '../features/updates/updates_screen.dart';
 import '../core/models/speaker.dart';
 import '../features/venue/venue_screen.dart';
 import '../features/speakers/speaker_detail_screen.dart';
+import '../features/admin/admin_schedule_screen.dart';
 import '../shared/scaffold_with_navbar.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -20,6 +21,10 @@ final routerProvider = Provider<GoRouter>((ref) {
     initialLocation: '/home',
     routes: [
       GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
+      GoRoute(
+        path: '/admin-schedule',
+        builder: (context, state) => const AdminScheduleScreen(),
+      ),
       GoRoute(
         path: '/register',
         builder: (context, state) => const RegisterScreen(),

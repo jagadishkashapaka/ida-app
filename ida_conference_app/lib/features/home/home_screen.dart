@@ -2,8 +2,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/models/session.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/providers/schedule_provider.dart';
 import '../../core/services/notification_service.dart';
+import '../../core/providers/admin_provider.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -77,17 +79,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         actions: [
           IconButton(
             onPressed: () {
-              ref.read(notificationServiceProvider).scheduleNotification(
-                id: 999,
-                title: 'Test Notification',
-                body: 'This is a test notification from IDA App!',
-                scheduledDate: DateTime.now().add(const Duration(seconds: 5)),
-              );
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Test notification scheduled in 5 seconds')),
-              );
+              if (ref.read(isAdminProvider)) {
+                context.push('/admin-schedule');
+              } else {
+                _showAdminLoginDialog(context);
+              }
             },
-            icon: const Icon(Icons.notifications_active_outlined),
+            icon: Icon(
+              ref.watch(isAdminProvider) ? Icons.admin_panel_settings : Icons.lock_outline,
+              color: ref.watch(isAdminProvider) ? Colors.green : null,
+            ),
           ),
           IconButton(
             onPressed: () {},
@@ -243,6 +244,56 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           session.time,
           style: Theme.of(context).textTheme.bodySmall,
         ),
+      ),
+    );
+  }
+
+  void _showAdminLoginDialog(BuildContext context) {
+    final userController = TextEditingController();
+    final passController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Admin Login'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: userController,
+              decoration: const InputDecoration(labelText: 'Username'),
+            ),
+            TextField(
+              controller: passController,
+              decoration: const InputDecoration(labelText: 'Password'),
+              obscureText: true,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final success = AdminAuthService.login(
+                userController.text,
+                passController.text,
+              );
+              if (success) {
+                ref.read(isAdminProvider.notifier).login();
+                Navigator.pop(context);
+                context.push('/admin-schedule');
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Invalid credentials')),
+                );
+              }
+            },
+            child: const Text('Login'),
+          ),
+        ],
       ),
     );
   }

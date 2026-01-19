@@ -66,6 +66,28 @@ class NotificationService {
     );
   }
 
+  Future<void> showImmediateNotification({
+    required String title,
+    required String body,
+  }) async {
+    const androidDetails = AndroidNotificationDetails(
+      'announcement_channel',
+      'Announcements',
+      importance: Importance.max,
+      priority: Priority.high,
+    );
+    const notificationDetails = NotificationDetails(
+      android: androidDetails,
+      iOS: DarwinNotificationDetails(),
+    );
+    await _notificationsPlugin.show(
+      DateTime.now().millisecond, // unique id
+      title,
+      body,
+      notificationDetails,
+    );
+  }
+
   Future<void> cancelAllNotifications() async {
     await _notificationsPlugin.cancelAll();
   }
