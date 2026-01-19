@@ -39,10 +39,45 @@ class SpeakersListScreen extends StatelessWidget {
       ),
       const Speaker(
         id: '5',
-        name: 'Dr. Mamatha Kaushik',
+        name: 'Dr. Prahlad',
         bio: 'Topic: Illegally Legal.',
-        imageUrl: 'assets/images/speakers/dr_mamatha.png',
+        imageUrl: 'assets/images/speakers/dr_mamatha.png', // Keeping previous image assume it was Prahlad
         topic: 'Illegally Legal',
+      ),
+      const Speaker(
+        id: '6',
+        name: 'Dr. Mahendranadh Reddy',
+        bio: 'Topic: Digital Invasion in General Practice.',
+        imageUrl: 'assets/images/speakers/dr_mahendranadh.png',
+        topic: 'Digital Invasion in General Practice',
+      ),
+      const Speaker(
+        id: '7',
+        name: 'Dr. Mamatha Koushik',
+        bio: 'Topic: Cracked Teeth diagnosis and Management.',
+        imageUrl: 'assets/images/speakers/dr_mamatha_koushik.png',
+        topic: 'Cracked Teeth diagnosis and Management',
+      ),
+      const Speaker(
+        id: '8',
+        name: 'Dr. Chandra Shekar Yavagal',
+        bio: 'Topic: What Every Dentist Must See in 2026: Oral Blue & The Paradigm Shift in Laser Care.',
+        imageUrl: 'assets/images/speakers/dr_chandra.png',
+        topic: 'Oral Blue & The Paradigm Shift in Laser Care',
+      ),
+      const Speaker(
+        id: '9',
+        name: 'Dr. Santhosh Ravindra',
+        bio: 'Topic: Shades Lighter, Smile Brighter: Teeth Whitening Demystified.',
+        imageUrl: 'assets/images/speakers/dr_santosh.png',
+        topic: 'Teeth Whitening Demystified',
+      ),
+      const Speaker(
+        id: '10',
+        name: 'Dr. Sarjeev Singh Yadav',
+        bio: 'Topic: AIDS: 3.0 Artificial Intelligence in Dental Sciences 3.0.',
+        imageUrl: 'assets/images/speakers/dr_sarjeev.png',
+        topic: 'Artificial Intelligence in Dental Sciences',
       ),
     ];
 
