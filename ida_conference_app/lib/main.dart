@@ -5,8 +5,10 @@ import 'firebase_options.dart';
 import 'core/theme.dart';
 import 'core/router.dart';
 import 'core/services/notification_service.dart';
+import 'core/widgets/notification_observer.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 // Background handler must be top-level
@@ -30,6 +32,14 @@ void main() async {
     // Register background handler (Not supported on Web in this way)
     if (!kIsWeb) {
        FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+    }
+
+    // Sign in anonymously to ensure Firestore access
+    try {
+      final userCredential = await FirebaseAuth.instance.signInAnonymously();
+      debugPrint('Signed in anonymously: ${userCredential.user?.uid}');
+    } catch (e) {
+      debugPrint('Failed to sign in anonymously: $e');
     }
     
     final container = ProviderContainer();
@@ -61,11 +71,13 @@ class MyApp extends ConsumerWidget {
     // Trigger notification scheduling
     ref.watch(scheduleNotificationsProvider);
 
-    return MaterialApp.router(
-      title: 'IDA Conference',
-      theme: appTheme,
-      routerConfig: router,
-      debugShowCheckedModeBanner: false,
+    return NotificationObserver(
+      child: MaterialApp.router(
+        title: 'IDA Conference',
+        theme: appTheme,
+        routerConfig: router,
+        debugShowCheckedModeBanner: false,
+      ),
     );
   }
 }

@@ -259,6 +259,17 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
               decoration: const InputDecoration(labelText: 'Message'),
               maxLines: 3,
             ),
+            const SizedBox(height: 10),
+            const Card(
+              color: Colors.amberAccent,
+              child: Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text(
+                  'NOTE: This sends an instant notification to OPEN apps.\nFor CLOSED apps, use Firebase Console.',
+                  style: TextStyle(fontSize: 12),
+                ),
+              ),
+            ),
           ],
         ),
         actions: [

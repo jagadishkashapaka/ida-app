@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
@@ -49,10 +50,29 @@ class NotificationService {
 
   Future<void> _initFCM() async {
     // Request permission (Apple)
-    await FirebaseMessaging.instance.requestPermission();
+    final settings = await FirebaseMessaging.instance.requestPermission();
+    debugPrint('User granted permission: ${settings.authorizationStatus}');
+    
+    // Get and log token
+    final fcmToken = await FirebaseMessaging.instance.getToken();
+    debugPrint('FCM Token: $fcmToken');
     
     // Subscribe to topic
     await FirebaseMessaging.instance.subscribeToTopic('announcements');
+    debugPrint('Subscribed to announcements topic');
+    
+    // Create the channel explicitly for Android
+    const androidChannel = AndroidNotificationChannel(
+      'announcement_channel', // id
+      'Announcements', // title
+      description: 'Important announcements from admin', // description
+      importance: Importance.max,
+    );
+    
+    await _notificationsPlugin
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(androidChannel);
 
     // Foreground Message Handler
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
