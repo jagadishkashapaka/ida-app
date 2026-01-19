@@ -2,15 +2,42 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/update.dart';
 import 'schedule_provider.dart';
 
+// Manual announcements provider
+class AnnouncementsNotifier extends Notifier<List<Update>> {
+  @override
+  List<Update> build() => [];
+
+  void addAnnouncement(String title, String body) {
+    state = [
+      ...state,
+      Update(
+        id: 'ann_${DateTime.now().millisecondsSinceEpoch}',
+        title: title,
+        body: body,
+        timestamp: DateTime.now(),
+      ),
+    ];
+  }
+
+  void removeAnnouncement(String id) {
+    state = state.where((ann) => ann.id != id).toList();
+  }
+}
+
+final announcementsProvider =
+    NotifierProvider<AnnouncementsNotifier, List<Update>>(AnnouncementsNotifier.new);
+
+// Combined updates provider
 final updatesProvider = Provider<List<Update>>((ref) {
   final schedule = ref.watch(scheduleProvider);
-  final updates = <Update>[];
+  final announcements = ref.watch(announcementsProvider);
+  
+  final updates = <Update>[...announcements];
   final now = DateTime.now();
 
   // Automatically generate updates from Schedule (Dynamic)
-  // Scan all days for sessions with status updates
   for (final entry in schedule.entries) {
-    final dayKey = entry.key; // 'day1' or 'day2'
+    final dayKey = entry.key;
     final dayIndex = dayKey == 'day1' ? 1 : 2;
     final sessions = entry.value;
 
@@ -25,16 +52,13 @@ final updatesProvider = Provider<List<Update>>((ref) {
           title = 'Lunch Time Change';
         }
 
-        // Get actual scheduled start time
         final times = parseTimeRange(session.time, dayIndex);
         if (times != null) {
           final timestamp = times['start']!;
-
-          // Only show updates that have "happened" according to current time
-          // For testing, you might want to comment out this 'if'
           if (now.isAfter(timestamp)) {
             updates.add(
               Update(
+                id: 'sched_${session.id}_${timestamp.millisecondsSinceEpoch}',
                 title: title,
                 body: session.statusMessage!,
                 timestamp: timestamp,

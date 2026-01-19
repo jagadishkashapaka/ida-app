@@ -91,7 +91,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
           ),
           IconButton(
-            onPressed: () {},
+            onPressed: () => context.push('/updates'),
             icon: const Icon(Icons.notifications_outlined),
           ),
         ],

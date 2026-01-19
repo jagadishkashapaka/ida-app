@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/models/session.dart';
 import '../../core/providers/schedule_provider.dart';
 import '../../core/services/notification_service.dart';
+import '../../core/providers/updates_provider.dart';
 
 class AdminScheduleScreen extends ConsumerStatefulWidget {
   const AdminScheduleScreen({super.key});
@@ -79,6 +80,11 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
       appBar: AppBar(
         title: const Text('Manage Schedule'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.history),
+            tooltip: 'Manage Announcements',
+            onPressed: () => _showManageAnnouncementsDialog(),
+          ),
           IconButton(
             icon: const Icon(Icons.campaign),
             tooltip: 'Send Announcement',
@@ -257,10 +263,16 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
           ),
           ElevatedButton(
             onPressed: () {
+              final title = titleController.text;
+              final body = bodyController.text;
+              
               ref.read(notificationServiceProvider).showImmediateNotification(
-                title: titleController.text,
-                body: bodyController.text,
+                title: title,
+                body: body,
               );
+              
+              ref.read(announcementsProvider.notifier).addAnnouncement(title, body);
+              
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Announcement sent!')),
@@ -269,6 +281,48 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
             child: const Text('Send'),
           ),
         ],
+      ),
+    );
+  }
+
+  void _showManageAnnouncementsDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => Consumer(
+        builder: (context, ref, _) {
+          final announcements = ref.watch(announcementsProvider);
+          return AlertDialog(
+            title: const Text('Manage Announcements'),
+            content: SizedBox(
+              width: double.maxFinite,
+              child: announcements.isEmpty
+                  ? const Text('No manual announcements yet.')
+                  : ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: announcements.length,
+                      itemBuilder: (context, index) {
+                        final ann = announcements[index];
+                        return ListTile(
+                          title: Text(ann.title),
+                          subtitle: Text(ann.body),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: () {
+                              ref.read(announcementsProvider.notifier).removeAnnouncement(ann.id);
+                            },
+                          ),
+                        );
+                      },
+                    ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Close'),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
