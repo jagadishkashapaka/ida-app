@@ -6,11 +6,25 @@ import 'core/theme.dart';
 import 'core/router.dart';
 import 'core/services/notification_service.dart';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
+
+// Background handler must be top-level
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  // We don't need to show local notification here because FCM automatically
+  // handling background messages on Android/iOS via system tray.
+  // Unless it's a data-only message, which is rare for basic console usage.
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  
+  // Register background handler
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   
   final container = ProviderContainer();
   await container.read(notificationServiceProvider).init();

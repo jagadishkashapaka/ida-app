@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
@@ -16,6 +17,7 @@ class NotificationService {
   Future<void> init() async {
     tz.initializeTimeZones();
 
+    // Local Notification Setup
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/ic_launcher');
 
@@ -37,6 +39,27 @@ class NotificationService {
         // Handle notification tap
       },
     );
+
+    // FCM Setup
+    await _initFCM();
+  }
+
+  Future<void> _initFCM() async {
+    // Request permission (Apple)
+    await FirebaseMessaging.instance.requestPermission();
+    
+    // Subscribe to topic
+    await FirebaseMessaging.instance.subscribeToTopic('announcements');
+
+    // Foreground Message Handler
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      if (message.notification != null) {
+        showImmediateNotification(
+          title: message.notification!.title ?? 'New Announcement',
+          body: message.notification!.body ?? '',
+        );
+      }
+    });
   }
 
   Future<void> scheduleNotification({
