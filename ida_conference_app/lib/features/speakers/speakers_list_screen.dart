@@ -79,6 +79,20 @@ class SpeakersListScreen extends StatelessWidget {
         imageUrl: 'assets/images/speakers/dr_sarjeev.png',
         topic: 'Artificial Intelligence in Dental Sciences',
       ),
+      const Speaker(
+        id: '11',
+        name: 'Dr. Harleen Gandhi Kalsi',
+        bio: 'Topic: Aligning Practice Growth with Invisalign: From iTero Scan to Invisalign Success.',
+        imageUrl: 'assets/images/speakers/dr_harleen.png',
+        topic: 'Aligning Practice Growth with Invisalign',
+      ),
+      const Speaker(
+        id: '12',
+        name: 'Dr. Mani Pavitra',
+        bio: 'Topic: Why Are the Best Dentists Still Invisible?',
+        imageUrl: 'assets/images/speakers/dr_mani.png',
+        topic: 'Why Are the Best Dentists Still Invisible?',
+      ),
     ];
 
     return Scaffold(
