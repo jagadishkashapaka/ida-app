@@ -5,13 +5,16 @@ import 'firebase_options.dart';
 import 'core/theme.dart';
 import 'core/router.dart';
 import 'core/services/notification_service.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 // Background handler must be top-level
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   // We don't need to show local notification here because FCM automatically
   // handling background messages on Android/iOS via system tray.
   // Unless it's a data-only message, which is rare for basic console usage.
@@ -23,8 +26,10 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   
-  // Register background handler
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  // Register background handler (Not supported on Web in this way)
+  if (!kIsWeb) {
+     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  }
   
   final container = ProviderContainer();
   await container.read(notificationServiceProvider).init();

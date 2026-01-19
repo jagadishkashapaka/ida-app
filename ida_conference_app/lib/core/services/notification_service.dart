@@ -3,6 +3,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import '../models/session.dart';
 import '../providers/schedule_provider.dart';
 
@@ -40,8 +41,10 @@ class NotificationService {
       },
     );
 
-    // FCM Setup
-    await _initFCM();
+    // FCM Setup (Skip on Web for now to avoid crashes if SW missing)
+    if (!kIsWeb) {
+      await _initFCM();
+    }
   }
 
   Future<void> _initFCM() async {
