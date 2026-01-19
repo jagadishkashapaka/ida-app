@@ -22,22 +22,34 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  
-  // Register background handler (Not supported on Web in this way)
-  if (!kIsWeb) {
-     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    
+    // Register background handler (Not supported on Web in this way)
+    if (!kIsWeb) {
+       FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+    }
+    
+    final container = ProviderContainer();
+    
+    // Initialize notifications (silently catch errors so app doesn't crash)
+    try {
+      await container.read(notificationServiceProvider).init();
+    } catch (e) {
+      debugPrint('Notification init failed: $e');
+    }
+    
+    runApp(UncontrolledProviderScope(
+      container: container,
+      child: const MyApp(),
+    ));
+  } catch (e) {
+    // Fallback if critical init fails
+    debugPrint('Critical init failed: $e');
+    runApp(const MaterialApp(home: Scaffold(body: Center(child: Text("App Initialization Error")))));
   }
-  
-  final container = ProviderContainer();
-  await container.read(notificationServiceProvider).init();
-  
-  runApp(UncontrolledProviderScope(
-    container: container,
-    child: const MyApp(),
-  ));
 }
 
 class MyApp extends ConsumerWidget {
