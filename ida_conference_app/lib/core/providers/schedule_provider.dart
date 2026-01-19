@@ -10,18 +10,35 @@ class ScheduleNotifier extends Notifier<Map<String, List<Session>>> {
 
   @override
   Map<String, List<Session>> build() {
-    // Listen to real-time updates
+    // Initialize and listen in a single async operation
+    _initializeSchedule();
+    
+    // Return initial empty state (will be updated by stream)
+    return {
+      'day1': [],
+      'day2': [],
+    };
+  }
+
+  Future<void> _initializeSchedule() async {
+    try {
+      // Check if this is first run and initialize if needed
+      final exists = await _firestoreService.doesScheduleExist();
+      if (!exists) {
+        debugPrint('First app launch detected - initializing default schedule');
+        await initializeDefaultSchedule();
+        debugPrint('Default schedule initialization complete');
+      }
+    } catch (e) {
+      debugPrint('Error checking/initializing schedule: $e');
+    }
+    
+    // Now start listening to updates (after potential initialization)
     _firestoreService.getScheduleStream().listen((newSchedule) {
       state = newSchedule;
     }, onError: (e) {
       debugPrint('Schedule Sync Error: $e');
     });
-    
-    // Return initial empty state (or loading state structure)
-    return {
-      'day1': [],
-      'day2': [],
-    };
   }
 
   Future<void> initializeDefaultSchedule() async {

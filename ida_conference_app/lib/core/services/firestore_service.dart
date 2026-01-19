@@ -24,6 +24,11 @@ class FirestoreService {
     });
   }
 
+  Future<bool> doesScheduleExist() async {
+    final snapshot = await _db.collection('schedule').get();
+    return snapshot.docs.isNotEmpty;
+  }
+
   Future<void> updateSchedule(String day, List<Session> sessions) async {
     await _db.collection('schedule').doc(day).set({
       'sessions': sessions.map((s) => s.toJson()).toList(),
