@@ -95,8 +95,13 @@ class NotificationService {
   Future<void> scheduleAllSessions(Map<String, List<Session>> schedule) async {
     await cancelAllNotifications();
     
+    // Ensure we are using the correct location for the conference
+    final indiaLocation = tz.getLocation('Asia/Kolkata');
+    tz.setLocalLocation(indiaLocation);
+
     int notificationId = 0;
-    final now = DateTime.now();
+    // Current time in India
+    final now = tz.TZDateTime.now(indiaLocation);
 
     schedule.forEach((dayKey, sessions) {
       final dayNum = dayKey == 'day1' ? 1 : 2;
@@ -104,8 +109,19 @@ class NotificationService {
         final times = parseTimeRange(session.time, dayNum);
         if (times != null) {
           final startTime = times['start']!;
+          // Reconstruct as TZDateTime in India timezone to ensure absolute correct time
+          // regardless of user's device timezone.
+          final sessionStartIST = tz.TZDateTime(
+            indiaLocation,
+            startTime.year,
+            startTime.month,
+            startTime.day,
+            startTime.hour,
+            startTime.minute,
+          );
+
           // Schedule 5 minutes before the session starts
-          final scheduleTime = startTime.subtract(const Duration(minutes: 5));
+          final scheduleTime = sessionStartIST.subtract(const Duration(minutes: 5));
 
           if (scheduleTime.isAfter(now)) {
             scheduleNotification(
