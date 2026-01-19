@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/session.dart';
@@ -25,19 +26,30 @@ class ScheduleNotifier extends Notifier<Map<String, List<Session>>> {
       // Check if this is first run and initialize if needed
       final exists = await _firestoreService.doesScheduleExist();
       if (!exists) {
-        debugPrint('First app launch detected - initializing default schedule');
+        debugPrint('🔄 First app launch detected - initializing default schedule');
         await initializeDefaultSchedule();
-        debugPrint('Default schedule initialization complete');
+        debugPrint('✅ Default schedule initialization complete');
       }
     } catch (e) {
-      debugPrint('Error checking/initializing schedule: $e');
+      debugPrint('❌ Error checking/initializing schedule: $e');
     }
     
     // Now start listening to updates (after potential initialization)
-    _firestoreService.getScheduleStream().listen((newSchedule) {
-      state = newSchedule;
-    }, onError: (e) {
-      debugPrint('Schedule Sync Error: $e');
+    // CRITICAL: Store subscription to prevent garbage collection
+    final subscription = _firestoreService.getScheduleStream().listen(
+      (newSchedule) {
+        debugPrint('📥 Schedule update received from Firestore - Day1: ${newSchedule['day1']?.length ?? 0} sessions, Day2: ${newSchedule['day2']?.length ?? 0} sessions');
+        state = newSchedule;
+      },
+      onError: (e) {
+        debugPrint('❌ Schedule Sync Error: $e');
+      },
+    );
+    
+    // Ensure subscription is cancelled when provider is disposed
+    ref.onDispose(() {
+      debugPrint('🔌 Cancelling schedule stream subscription');
+      subscription.cancel();
     });
   }
 

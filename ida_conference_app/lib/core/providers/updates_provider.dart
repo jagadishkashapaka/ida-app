@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/update.dart';
@@ -11,11 +12,23 @@ class AnnouncementsNotifier extends Notifier<List<Update>> {
   @override
   List<Update> build() {
     // Listen to real-time updates
-    _firestoreService.getAnnouncementsStream().listen((updates) {
-      state = updates;
-    }, onError: (e) {
-      debugPrint('Announcements Sync Error: $e');
+    // CRITICAL: Store subscription to prevent garbage collection
+    final subscription = _firestoreService.getAnnouncementsStream().listen(
+      (updates) {
+        debugPrint('📥 Announcements update received from Firestore: ${updates.length} items');
+        state = updates;
+      },
+      onError: (e) {
+        debugPrint('❌ Announcements Sync Error: $e');
+      },
+    );
+    
+    // Ensure subscription is cancelled when provider is disposed
+    ref.onDispose(() {
+      debugPrint('🔌 Cancelling announcements stream subscription');
+      subscription.cancel();
     });
+    
     return [];
   }
 
